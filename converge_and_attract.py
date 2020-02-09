@@ -9,7 +9,8 @@ Created on Sun Feb  9 10:31:13 2020
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
-from sympy.utilities.iterables import multiset_permutations
+from itertools import permutations
+
 
 # Initialize memory patterns
 x1 = np.array([-1., -1., 1., -1., 1., -1., -1., 1.]).reshape(1,8)
@@ -80,5 +81,50 @@ plt.legend()
 plt.show()
 
 
-# Automate the search for attractors
+##### Automate the search for attractors ######
+a0 = [ 1.,  1.,  1.,  1.,  1.,  1.,  1.,   1.]
+a1 = [-1.,  1.,  1.,  1.,  1.,  1.,  1.,   1.]
+a2 = [-1., -1.,  1.,  1.,  1.,  1.,  1.,   1.]
+a3 = [-1., -1., -1.,  1.,  1.,  1.,  1.,   1.]
+a4 = [-1., -1., -1., -1.,  1.,  1.,  1.,   1.]
+a5 = [-1., -1., -1., -1., -1.,  1.,  1.,   1.]
+a6 = [-1., -1., -1., -1., -1., -1.,  1.,   1.]
+a7 = [-1., -1., -1., -1., -1., -1., -1.,   1.]
+a8 = [-1., -1., -1., -1., -1., -1., -1.,   1.]
+a9 = [-1., -1., -1., -1., -1., -1., -1.,  -1.] 
 
+perm0 = set(permutations(a0))
+perm1 = set(permutations(a1))
+perm2 = set(permutations(a2))
+perm3 = set(permutations(a3))
+perm4 = set(permutations(a4))
+perm5 = set(permutations(a5))
+perm6 = set(permutations(a6))
+perm7 = set(permutations(a7))
+perm8 = set(permutations(a8))
+perm9 = set(permutations(a9))
+
+ar0 = np.array(list(perm0))
+ar1 = np.array(list(perm1))
+ar2 = np.array(list(perm2))
+ar3 = np.array(list(perm3))
+ar4 = np.array(list(perm4))
+ar5 = np.array(list(perm5))
+ar6 = np.array(list(perm6))
+ar7 = np.array(list(perm7))
+ar8 = np.array(list(perm8))
+ar9 = np.array(list(perm9))
+
+all_pos = np.concatenate((ar1, ar2, ar3, ar4, ar5, ar6, ar7, ar8, ar9), axis=0)
+
+# Display all possible inputs as greyscale image
+plt.imshow(all_pos,  cmap='gray')
+plt.show()
+
+
+# Takes 3 iterations for all inputs to reach an attractor (2 ~= ln(8))
+for i in range(3):
+    all_pos = np.sign(np.dot(W,all_pos.T).T)
+    
+attractors = np.unique(all_pos, axis=0)
+print("Number of attractors (assuming convergence): ", attractors.shape[0])
