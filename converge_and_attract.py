@@ -9,6 +9,7 @@ Created on Sun Feb  9 10:31:13 2020
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
+from sympy.utilities.iterables import multiset_permutations
 
 # Initialize memory patterns
 x1 = np.array([-1., -1., 1., -1., 1., -1., -1., 1.]).reshape(1,8)
@@ -77,3 +78,7 @@ plt.plot(x3[0], label='Attractor Input')
 plt.plot(x3d[0], label='Distorted Recall')
 plt.legend()
 plt.show()
+
+
+# Automate the search for attractors
+
