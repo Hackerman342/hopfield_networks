@@ -16,7 +16,11 @@ x2 = np.array([-1., -1., -1., -1., -1., 1., -1., -1.]).reshape(1,8)
 x3 = np.array([-1., 1., 1., -1., -1., 1., -1., 1.]).reshape(1,8)
 
 # Calculate Weight Matrix (Scaling optional)
-W = (1./3.)*(np.dot(x1.T,x1) + np.dot(x2.T,x2) + np.dot(x3.T,x3))
+W = (1./8.)*(np.dot(x1.T,x1) + np.dot(x2.T,x2) + np.dot(x3.T,x3))
+
+# Display weight matrix as greyscale image
+plt.imshow(W,  cmap='gray')
+plt.show()
 
 #pict = np.loadtxt('pict.dat')
 #print(pict.shape)
