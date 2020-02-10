@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 
-def weight_calc(patterns, do_scaling=True, disp_W=False):
+def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
     n_units = patterns.shape[1]
     
     # This is the same that summing all the outer products of each pattern with itself
@@ -22,7 +22,8 @@ def weight_calc(patterns, do_scaling=True, disp_W=False):
     
     if do_scaling:
         W /= n_units
-    np.fill_diagonal(W,0)
+    if zeros_diagonal:
+        np.fill_diagonal(W,0)
     if disp_W:
         # Display weight matrix as greyscale image
         plt.title('Greyscale representation of weight matrix')

@@ -5,13 +5,27 @@ Created on Sun Feb  9 10:31:13 2020
 @author: kwc57
 """
 
-# Import package dependencies
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
-
-# Import necessary classes from script with functions
 import hopfield_functions as hf
+
+
+def plot_original_and_recall_imgs(patterns, patterns_recall):
+    for idx_pattern in range(len(patterns)):
+        txt_title_orig = "Image " + str(idx_pattern+1) + " input"
+        plt.title(txt_title_orig)
+        img = patterns[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+        
+        txt_title_recall = "Image " + str(idx_pattern+1) + " recall"
+        plt.title(txt_title_recall)
+        img = patterns_recall[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+ 
+
 
 # Load data from pict
 pict = np.genfromtxt('pict.dat', delimiter=',').reshape(-1,1024)
@@ -27,49 +41,17 @@ if show_images:
 # Calculate Weight Matrix
 n_patterns = 3
 disp_W = True
-W = hf.weight_calc(pict,n_patterns, disp_W)
 
+pict_for_learning=pict[:n_patterns]
 
-### Stability Check ####
-stability_check = False
-if stability_check:
-    # Recall training images
-    pic1_recall = np.sign(np.dot(W,pict[0].T).T)
-    pic2_recall = np.sign(np.dot(W,pict[1].T).T)
-    pic3_recall = np.sign(np.dot(W,pict[2].T).T)
-    
-    # Plot input images and recalls
-    plt.title("Image 1 input")
-    img = pict[0].reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    
-    plt.title("Image 1 recall")
-    img = pic1_recall.reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    
-    plt.title("Image 2 input")
-    img = pict[1].reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    
-    plt.title("Image 2 recall")
-    img = pic2_recall.reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    
-    plt.title("Image 3 input")
-    img = pict[2].reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-    
-    plt.title("Image 3 recall")
-    img = pic3_recall.reshape(int(math.sqrt(pict.shape[1])),-1)
-    plt.imshow(img, cmap='gray')
-    plt.show()
+W = hf.weight_calc(pict_for_learning, disp_W)
+pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=10)
 
+stability_check = np.all(pict_for_learning==pict_for_learning)
 
+print("Are the patterns stable? " + str(stability_check))
+
+plot_original_and_recall_imgs(pict_for_learning, pict_recall)
 
 ### Recall degraded patterns ###
 p10 = pict[9]

@@ -91,11 +91,13 @@ patterns_distorted_recall = hf.degraded_recall_first_to_converge(patterns_distor
 
 
 
-patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=2000)
+patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=10000)
 
 
 np.unique(patterns_distorted_recall, axis=0)
 
+
+np.all(patterns_distorted_recall == patterns_distorted, axis=1)
 
 
 np.all(patterns_distorted_recall == patterns, axis=1)
