@@ -22,15 +22,28 @@ def weight_calc(patterns, do_scaling=True, disp_W=False):
     
     if do_scaling:
         W /= n_units
-    np.fill_diagonal(W,0)
+    #np.fill_diagonal(W,0) # I think this line was causing the issues
+    # But I do see where it says that in the lecture slides
     if disp_W:
         # Display weight matrix as greyscale image
         plt.title('Greyscale representation of weight matrix')
-        plt.imshow(W,  cmap='jet') 
+        plt.imshow(W,  cmap='gray') 
         plt.colorbar()
         plt.show()
     return W
 
+# Need to include number of rows, because we may ot want to store all images
+def weight_calc_old(data, nrows, disp_W):
+    # Calculate weight matrix
+    W = np.dot(data[:nrows].T,data[:nrows])
+    # Scale by number of points
+    W /= data.shape[1]
+    if disp_W:
+        # Display weight matrix as greyscale image
+        plt.title('Greyscale representation of weight matrix')
+        plt.imshow(W,  cmap='gray')
+        plt.show()
+    return W
 
 
 def degraded_recall_first_to_converge(image_vec_prev, W, print_step=10, plot_patterns=False):
@@ -81,3 +94,18 @@ def degraded_recall_epochs(image_vec_prev, W, epochs=10):
                 plt.show()  """
         image_vec_prev = image_vec_new.copy()
     return image_vec_new 
+
+def degraded_recall(image_vec, W, epochs, print_step):
+    # Plot input image
+    plt.title("degraded input")
+    img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
+    plt.imshow(img, cmap='gray')
+    plt.show()
+    
+    for i in range(epochs):
+        image_vec = np.sign(np.dot(W,image_vec.T).T)
+        if (i+1)%print_step == 0:
+            plt.title("update # %i" %(i+1))
+            img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
+            plt.imshow(img, cmap='gray')
+            plt.show()  

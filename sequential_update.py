@@ -21,17 +21,19 @@ show_images = False
 if show_images:
     for i in range(pict.shape[0]):
         img = pict[i].reshape(int(math.sqrt(pict.shape[1])),-1)
+        plt.title("Image # %i" %(i+1))
         plt.imshow(img,  cmap='gray')
         plt.show()
 
 # Calculate Weight Matrix
 n_patterns = 3
 disp_W = True
-W = hf.weight_calc(pict,n_patterns, disp_W)
-
+W = hf.weight_calc_old(pict,n_patterns, disp_W) # Need to include # of rows in 
+# Weight calcualtion, otherwise it tries to store all patterns (only want 
+# first three here) and it forgets images (i.e.)
 
 ### Stability Check ####
-stability_check = False
+stability_check = True
 if stability_check:
     # Recall training images
     pic1_recall = np.sign(np.dot(W,pict[0].T).T)
@@ -76,14 +78,14 @@ p10 = pict[9]
 
 #hf.degraded_recall(image_vec, W, epochs, print_step)
 print(" \n\n ############### p10 recall ############### ")
-p10_recall = hf.degraded_recall(p10, W, 1, 1)
+p10_recall = hf.degraded_recall(p10, W, 3, 1)
 
 p11 = pict[10]
 print(" \n\n ############### p11 recall ############### ")
-p11_recall = hf.degraded_recall(p11, W, 4, 2)
+p11_recall = hf.degraded_recall(p11, W, 3, 1)
 
     
 rand_vec = np.random.randint(2, size=1024)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
-rand_recall = hf.degraded_recall(rand_vec, W, 100, 20)
+rand_recall = hf.degraded_recall(rand_vec, W, 3, 1)
