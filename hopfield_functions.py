@@ -28,18 +28,19 @@ def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
 
     if disp_W:
         # Display weight matrix as greyscale image
-        plt.title('Greyscale representation of weight matrix')
-        plt.imshow(W,  cmap='gray') 
+        plt.title('Color representation of weight matrix')
+        plt.imshow(W,  cmap='jet') 
         plt.colorbar()
         plt.show()
     return W
+
 
 # Need to include number of rows, because we may ot want to store all images
 def weight_calc_old(data, nrows, disp_W):
     # Calculate weight matrix
     W = np.dot(data[:nrows].T,data[:nrows])
     # Scale by number of points
-    W /= data.shape[1]
+    #W /= data.shape[1]
     if disp_W:
         # Display weight matrix as greyscale image
         plt.title('Greyscale representation of weight matrix')
@@ -47,7 +48,7 @@ def weight_calc_old(data, nrows, disp_W):
         plt.show()
     return W
 
-
+"""
 def degraded_recall_first_to_converge(image_vec_prev, W, print_step=10, plot_patterns=False):
     # Plot input image
     if plot_patterns: 
@@ -61,21 +62,17 @@ def degraded_recall_first_to_converge(image_vec_prev, W, print_step=10, plot_pat
     while ~fixed_point_found:
     #for i in range(epochs):
         i += 1
-        image_vec_new = np.sign(np.dot(W,image_vec_prev.T).T)
-        """if (i+1)%print_step == 0:
+        image_vec_new = our_sign(np.dot(W,image_vec_prev.T).T)
+        if (i+1)%print_step == 0:
                 plt.title("update # %i" %(i+1))
                 img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
                 plt.imshow(img, cmap='gray')
-                plt.show()  """
+                plt.show()
         fixed_point_found = check_fixed_point_found(image_vec_new, image_vec_prev)
         image_vec_prev = image_vec_new.copy()
     print("Number of epochs needed to find a fixed point " + str(i))
     return image_vec_new 
-
-
-
-
-
+"""
 
 def check_fixed_point_found(patterns_new, patterns_prev): 
     fixed_points_in_patterns = np.all(patterns_new == patterns_prev, axis = 1)
@@ -84,24 +81,46 @@ def check_fixed_point_found(patterns_new, patterns_prev):
 
 
 
-
-
 def degraded_recall_epochs(patterns_prev, W, epochs=10):
-    for i in range(epochs):
-        patterns_new = np.sign(np.dot(W,patterns_prev.T).T)
+    
+    n_patterns = patterns_prev.shape[0]
+    n_nodes = patterns_prev.shape[1]
+       
+    for epoch in range(epochs):
+        print("Epoch: " + str(epoch))
+        patterns_new = np.zeros((n_patterns, n_nodes))
+       
+        for idx_pattern in range(n_patterns):   
+            for idx_node_i in range(n_nodes):
+                result_sum = 0
+                for idx_node_j in range(n_nodes):
+                    result_sum += W[idx_node_i,idx_node_j] * patterns_prev[idx_pattern, idx_node_j]
+                patterns_new[idx_pattern, idx_node_i] = our_sign(result_sum)    
+                #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
+        print("Patterns new:")
+        print(patterns_new)
+        
+        # patterns_new = our_sign(np.dot(W,patterns_prev.T).T)
         """if (i+1)%print_step == 0:
                 plt.title("update # %i" %(i+1))
                 img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
                 plt.imshow(img, cmap='gray')
-                plt.show()  """
-
+                plt.show()  
+        """
+        
         if stability_reached(patterns_prev, patterns_new):
-            print("Stability reached in " + str(i) + " epochs.")
+            print("Stability reached in " + str(epoch) + " epochs.")
             break
-        patterns_prev = patterns_new.copy()
+        patterns_prev = patterns_new.copy()  
         
     return patterns_new 
 
+
+def our_sign(x):
+    if x>=0:
+        return 1 
+    else:
+        return -1
 
 
 def stability_reached(patterns_prev, patterns_new):
@@ -123,3 +142,9 @@ def degraded_recall(image_vec, W, epochs, print_step):
             img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
             plt.imshow(img, cmap='gray')
             plt.show()  
+
+
+def calculate_energy(pattern,W):
+    return - pattern @ W @ pattern.T 
+
+

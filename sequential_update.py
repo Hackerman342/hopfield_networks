@@ -57,6 +57,11 @@ stability_check = np.all(pict_for_learning==pict_for_learning)
 
 print("Are the patterns stable? " + str(stability_check))
 
+
+energy_attractors = hf.calculate_energy(pict_for_learning,W)
+
+
+
 plot_original_and_recall_imgs(pict_for_learning, pict_recall)
 
 ### Recall degraded patterns ###
@@ -75,3 +80,13 @@ rand_vec = np.random.randint(2, size=1024)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
 rand_recall = hf.degraded_recall_epochs(rand_vec, W, 100)
+
+
+
+
+###################### 3.3 ######################
+
+
+
+
+
