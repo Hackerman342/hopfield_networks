@@ -65,18 +65,18 @@ energy_attractors = hf.calculate_energy(pict_for_learning,W)
 plot_original_and_recall_imgs(pict_for_learning, pict_recall)
 
 ### Recall degraded patterns ###
-p10 = pict[9]
+p10 = pict[9].reshape(1,-1)
 
 #hf.degraded_recall(image_vec, W, epochs, print_step)
 print(" \n\n ############### p10 recall ############### ")
 p10_recall = hf.degraded_recall_epochs(p10, W, 1)
 
-p11 = pict[10]
+p11 = pict[10].reshape(1,-1)
 print(" \n\n ############### p11 recall ############### ")
 p11_recall = hf.degraded_recall_epochs(p11, W, 4)
 
     
-rand_vec = np.random.randint(2, size=1024)
+rand_vec = np.random.randint(2, size=1024).reshape(1,-1)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
 rand_recall = hf.degraded_recall_epochs(rand_vec, W, 100)
