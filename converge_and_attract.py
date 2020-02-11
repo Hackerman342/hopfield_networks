@@ -63,7 +63,7 @@ patterns = np.array([x1, x2, x3])
 
 # Calculate Weight Matrix (Scaling optional)
 #W = (1./8.)*(np.outer(x1,x1) + np.outer(x2,x2) + np.outer(x3,x3))
-W = hf.weight_calc(patterns, disp_W=True)
+W = hf.weight_calc(patterns, disp_W=True, zeros_diagonal=False)
 
 
 ### Check that x1, x2, x3 are fixed points
@@ -75,6 +75,9 @@ x3_recall = np.sign(np.dot(W,x3.T).T)
 """
 
 patterns_recall = hf.degraded_recall_first_to_converge(patterns, W)
+
+
+
 print("- Checking that x1, x2 and x3 are fixed points...")
 print(np.all(patterns==patterns_recall))
 
@@ -91,13 +94,9 @@ patterns_distorted_recall = hf.degraded_recall_first_to_converge(patterns_distor
 
 
 
-patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=10000)
+patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=3)
 
 
-np.unique(patterns_distorted_recall, axis=0)
-
-
-np.all(patterns_distorted_recall == patterns_distorted, axis=1)
 
 
 np.all(patterns_distorted_recall == patterns, axis=1)
@@ -143,3 +142,7 @@ attractors = np.unique(all_possible_patterns_recall, axis=0)
 print("Number of attractors (assuming convergence): ", attractors.shape[0])
 
 
+## Very distorted pattern 
+very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]) # 6 of the units of x1 were swipped
+
+very_distorted_pattern_recall = hf.degraded_recall_epochs(very_distorted_pattern, W, epochs=100)

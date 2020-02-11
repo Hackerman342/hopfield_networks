@@ -45,7 +45,7 @@ disp_W = True
 pict_for_learning=pict[:n_patterns]
 
 W = hf.weight_calc(pict_for_learning, disp_W)
-pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=10)
+pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=1)
 
 stability_check = np.all(pict_for_learning==pict_for_learning)
 
@@ -58,14 +58,14 @@ p10 = pict[9]
 
 #hf.degraded_recall(image_vec, W, epochs, print_step)
 print(" \n\n ############### p10 recall ############### ")
-p10_recall = hf.degraded_recall(p10, W, 1, 1)
+p10_recall = hf.degraded_recall_epochs(p10, W, 1)
 
 p11 = pict[10]
 print(" \n\n ############### p11 recall ############### ")
-p11_recall = hf.degraded_recall(p11, W, 4, 2)
+p11_recall = hf.degraded_recall_epochs(p11, W, 4)
 
     
 rand_vec = np.random.randint(2, size=1024)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
-rand_recall = hf.degraded_recall(rand_vec, W, 100, 20)
+rand_recall = hf.degraded_recall_epochs(rand_vec, W, 100)

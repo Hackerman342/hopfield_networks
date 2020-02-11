@@ -72,13 +72,23 @@ def check_fixed_point_found(patterns_new, patterns_prev):
 
 
 
-def degraded_recall_epochs(image_vec_prev, W, epochs=10):
+def degraded_recall_epochs(patterns_prev, W, epochs=10):
     for i in range(epochs):
-        image_vec_new = np.sign(np.dot(W,image_vec_prev.T).T)
+        patterns_new = np.sign(np.dot(W,patterns_prev.T).T)
         """if (i+1)%print_step == 0:
                 plt.title("update # %i" %(i+1))
                 img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
                 plt.imshow(img, cmap='gray')
                 plt.show()  """
-        image_vec_prev = image_vec_new.copy()
-    return image_vec_new 
+        if stability_reached(patterns_prev, patterns_new):
+            print("Stability reached in " + str(i) + " epochs.")
+            break
+        patterns_prev = patterns_new.copy()
+        
+    return patterns_new 
+
+
+
+def stability_reached(patterns_prev, patterns_new):
+    return np.all(patterns_prev == patterns_new)
+    
