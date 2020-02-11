@@ -70,17 +70,21 @@ p10 = pict[9].reshape(1,-1)
 #hf.degraded_recall(image_vec, W, epochs, print_step)
 print(" \n\n ############### p10 recall ############### ")
 p10_recall = hf.degraded_recall_epochs(p10, W, 1)
+plt.imshow(p10_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
+plt.show()
 
 p11 = pict[10].reshape(1,-1)
 print(" \n\n ############### p11 recall ############### ")
 p11_recall = hf.degraded_recall_epochs(p11, W, 4)
-
+plt.imshow(p11_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
+plt.show()
     
 rand_vec = np.random.randint(2, size=1024).reshape(1,-1)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
 rand_recall = hf.degraded_recall_epochs(rand_vec, W, 100)
-
+plt.imshow(rand_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
+plt.show()
 
 
 
