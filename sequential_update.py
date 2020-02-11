@@ -4,6 +4,12 @@ Created on Sun Feb  9 10:31:13 2020
 
 @author: kwc57
 """
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Feb  9 10:31:13 2020
+
+@author: kwc57
+"""
 
 import math
 import numpy as np 

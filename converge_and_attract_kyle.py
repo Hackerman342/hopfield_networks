@@ -22,6 +22,7 @@ W = (1./8.)*(np.dot(x1.T,x1) + np.dot(x2.T,x2) + np.dot(x3.T,x3))
 np.fill_diagonal(W,0)
 # Display weight matrix as greyscale image
 plt.imshow(W,  cmap='gray')
+plt.colorbar()
 plt.show()
 
 #pict = np.loadtxt('pict.dat')
@@ -56,30 +57,63 @@ x1d = np.array([1., -1., 1., -1., 1., -1., -1., 1.]).reshape(1,8)
 x2d = np.array([1., 1., -1., -1., -1., 1., -1., -1.]).reshape(1,8)
 x3d = np.array([1., 1., 1., -1., 1., 1., -1., 1.]).reshape(1,8)
 
+<<<<<<< HEAD:converge_and_attract_kyle
 for i in range(5):
+=======
+for i in range(3):
+>>>>>>> c7f47a846eca2c1cce9bced56951b10b5866cc18:converge_and_attract_kyle.py
     x1d = np.sign(np.dot(W,x1d.T).T)
     x2d = np.sign(np.dot(W,x2d.T).T)
     x3d = np.sign(np.dot(W,x3d.T).T)
     
-# Plot recalls over inputs to ensure proper weight matrix configuration
+## Plot recalls over inputs to ensure proper weight matrix configuration
+#plt.title("Checking x1d convergence")
+#plt.plot(x1[0], "c", label='Attractor Input')
+#plt.plot(x1d[0], "--k", label='Distorted Recall')
+#plt.legend()
+#plt.show()
+#
+#plt.title("Checking x2d convergence")
+#plt.plot(x2[0], "c", label='Attractor Input')
+#plt.plot(x2d[0], "--k", label='Distorted Recall')
+#plt.legend()
+#plt.show()
+#
+#plt.title("Checking x3d convergence")
+#plt.plot(x3[0], "c", label='Attractor Input')
+#plt.plot(x3d[0], "--k", label='Distorted Recall')
+#plt.legend()
+#plt.show()
+
+plt.title("Displaying x1")
+plt.imshow(x1,  cmap='gray')
+plt.colorbar()
+plt.show()
+
 plt.title("Checking x1d convergence")
-plt.plot(x1[0], label='Attractor Input')
-plt.plot(x1d[0], label='Distorted Recall')
-plt.legend()
+plt.imshow(x1d,  cmap='gray')
+plt.colorbar()
+plt.show()
+
+plt.title("Displaying x2")
+plt.imshow(x2,  cmap='gray')
+plt.colorbar()
 plt.show()
 
 plt.title("Checking x2d convergence")
-plt.plot(x2[0], label='Attractor Input')
-plt.plot(x2d[0], label='Distorted Recall')
-plt.legend()
+plt.imshow(x2d,  cmap='gray')
+plt.colorbar()
+plt.show()
+
+plt.title("Displaying x3")
+plt.imshow(x3,  cmap='gray')
+plt.colorbar()
 plt.show()
 
 plt.title("Checking x3d convergence")
-plt.plot(x3[0], label='Attractor Input')
-plt.plot(x3d[0], label='Distorted Recall')
-plt.legend()
+plt.imshow(x3d,  cmap='gray')
+plt.colorbar()
 plt.show()
-
 
 ##### Automate the search for attractors ######
 a0 = [ 1.,  1.,  1.,  1.,  1.,  1.,  1.,   1.]
@@ -117,9 +151,9 @@ ar9 = np.array(list(perm9))
 
 all_pos = np.concatenate((ar1, ar2, ar3, ar4, ar5, ar6, ar7, ar8, ar9), axis=0)
 
-# Display all possible inputs as greyscale image
-plt.imshow(all_pos,  cmap='gray')
-plt.show()
+## Display all possible inputs as greyscale image
+#plt.imshow(all_pos,  cmap='gray')
+#plt.show()
 
 
 # Takes 3 iterations for all inputs to reach an attractor (2 ~= ln(8))
@@ -127,4 +161,11 @@ for i in range(3):
     all_pos = np.sign(np.dot(W,all_pos.T).T)
     
 attractors = np.unique(all_pos, axis=0)
-print("Number of attractors (assuming convergence): ", attractors.shape[0])
+print("\n\n Number of attractors (assuming convergence): ", attractors.shape[0])
+
+# Display all attractors as greyscale image
+plt.title("All attractors")
+plt.imshow(attractors,  cmap='gray')
+plt.colorbar()
+plt.show()
+

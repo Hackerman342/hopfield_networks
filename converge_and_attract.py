@@ -63,7 +63,7 @@ patterns = np.array([x1, x2, x3])
 
 # Calculate Weight Matrix (Scaling optional)
 #W = (1./8.)*(np.outer(x1,x1) + np.outer(x2,x2) + np.outer(x3,x3))
-W = hf.weight_calc(patterns, disp_W=True, zeros_diagonal=False)
+W = hf.weight_calc(patterns, disp_W=True, zeros_diagonal=True)
 
 
 ### Check that x1, x2, x3 are fixed points
@@ -121,7 +121,7 @@ for idx_distorted_input in range(len(patterns_distorted_converg)):
 all_possible_patterns = get_all_possible_patterns()
 
 
-all_possible_patterns_recall = hf.degraded_recall_epochs(all_possible_patterns, W, epochs=2000)
+all_possible_patterns_recall = hf.degraded_recall_epochs(all_possible_patterns, W, epochs=3000)
 
     
 attractors = np.unique(all_possible_patterns_recall, axis=0)
