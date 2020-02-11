@@ -15,13 +15,16 @@ import matplotlib.pyplot as plt
 
 
 def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
-    n_units = patterns.shape[1]
-    
+    # Check for 1-D pattern shape = (N,)
+    if patterns.size == patterns.shape[0]:
+        n_units = patterns.size
+    else:
+        n_units = patterns.shape[1]
     # This is the same that summing all the outer products of each pattern with itself
     W = np.dot(patterns.T,patterns)
-    
+
     if do_scaling:
-        W /= n_units
+        W = W / n_units # Changed because /= was rasing an error for some reason...
     
     if zeros_diagonal:
         np.fill_diagonal(W,0)
