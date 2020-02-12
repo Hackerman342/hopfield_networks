@@ -13,6 +13,20 @@ import matplotlib.pyplot as plt
 #used_data = data[:npatterns]
 
 
+def plot_original_and_recall_imgs(patterns, patterns_recall):
+    for idx_pattern in range(len(patterns)):
+        txt_title_orig = "Image " + str(idx_pattern+1) + " input"
+        plt.title(txt_title_orig)
+        img = patterns[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+        
+        txt_title_recall = "Image " + str(idx_pattern+1) + " recall"
+        plt.title(txt_title_recall)
+        img = patterns_recall[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+ 
 
 def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
     # Check for 1-D pattern shape = (N,)
@@ -83,40 +97,60 @@ def check_fixed_point_found(patterns_new, patterns_prev):
     return fixed_point_found
 
 
-
-def degraded_recall_epochs(patterns_prev, W, epochs=10):
-    
+def degraded_recall_epochs_multiple_patterns(patterns_prev, W, epochs=1000, show_energy_per_epoch=False):
     n_patterns = patterns_prev.shape[0]
     n_nodes = patterns_prev.shape[1]
-       
+    patterns_new = np.zeros((n_patterns, n_nodes))
+    for idx_pattern in range(n_patterns):   
+        print("Index pattern: " + str(idx_pattern))
+        this_pattern_prev = patterns_prev[idx_pattern]
+        this_pattern_new = degraded_recall_epochs(this_pattern_prev, W, epochs, show_energy_per_epoch)
+        patterns_new[idx_pattern] = this_pattern_new
+    return patterns_new
+    
+    
+    
+    
+def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=False):
+    """
+    pattern_prev: it's an array with one n_nodes values
+    """
+    n_nodes = len(pattern_prev)
+    energy_per_epoch = []
+    pattern_new = np.zeros(n_nodes)
+
     for epoch in range(epochs):
         print("Epoch: " + str(epoch))
-        patterns_new = np.zeros((n_patterns, n_nodes))
-       
-        for idx_pattern in range(n_patterns):   
-            for idx_node_i in range(n_nodes):
-                result_sum = 0
-                for idx_node_j in range(n_nodes):
-                    result_sum += W[idx_node_i,idx_node_j] * patterns_prev[idx_pattern, idx_node_j]
-                patterns_new[idx_pattern, idx_node_i] = our_sign(result_sum)    
-                #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
-        print("Patterns new:")
-        print(patterns_new)
+        energy = calculate_energy(pattern_prev,W)
+        print("Energy: " + str(energy))
+        energy_per_epoch.append(energy)
+        
+        for idx_node_i in range(n_nodes):
+            result_sum = 0
+            for idx_node_j in range(n_nodes):
+                result_sum += W[idx_node_i,idx_node_j] * pattern_prev[idx_node_j]
+            pattern_new[idx_node_i] = our_sign(result_sum)    
+            #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
+        print("Pattern new:")
+        print(pattern_new)
         
         # patterns_new = our_sign(np.dot(W,patterns_prev.T).T)
-        """if (i+1)%print_step == 0:
-                plt.title("update # %i" %(i+1))
-                img = image_vec.reshape(int(math.sqrt(image_vec.size)),-1)
-                plt.imshow(img, cmap='gray')
-                plt.show()  
-        """
         
-        if stability_reached(patterns_prev, patterns_new):
-            print("Stability reached in " + str(epoch) + " epochs.")
+        if stability_reached(pattern_prev, pattern_new):
+            print("Stability reached in " + str(epoch+1) + " epochs.")
+            stability_epochs = epoch
             break
-        patterns_prev = patterns_new.copy()  
         
-    return patterns_new 
+        pattern_prev = pattern_new.copy()  
+    
+    if show_energy_per_epoch:
+        plt.plot(range(1, stability_epochs+2), energy_per_epoch, "c", linestyle='--', marker='o')
+        plt.xlabel("Number of recall iterations")
+        plt.ylabel("Energy")
+        plt.show()
+        print(energy_per_epoch)
+    
+    return pattern_new
 
 
 def our_sign(x):
@@ -130,8 +164,8 @@ def vec_sign(x):
     x[x<0] = -1
     return x
 
-def stability_reached(patterns_prev, patterns_new):
-    return np.all(patterns_prev == patterns_new)
+def stability_reached(pattern_prev, pattern_new):
+    return np.all(pattern_prev == pattern_new)
     
 
 
@@ -152,6 +186,5 @@ def degraded_recall(image_vec, W, epochs, print_step):
 
 
 def calculate_energy(pattern,W):
-    return - pattern @ W @ pattern.T 
-
+    return - pattern @ W @ pattern.T
 
