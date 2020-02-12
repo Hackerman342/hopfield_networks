@@ -39,7 +39,7 @@ pict_for_learning=pict[:n_patterns]
 W = hf.weight_calc(pict_for_learning, disp_W, zeros_diagonal=True)
 pict_recall = hf.degraded_recall_epochs_multiple_patterns(pict_for_learning, W)
 
-stability_check = np.all(pict_for_learning==pict_for_learning)
+stability_check = np.all(pict_for_learning==pict_recall)
 
 print("Are the patterns stable? " + str(stability_check))
 

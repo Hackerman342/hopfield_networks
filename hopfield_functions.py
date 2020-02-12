@@ -121,7 +121,9 @@ def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=F
 
     for epoch in range(epochs):
         print("Epoch: " + str(epoch))
-        energy_per_epoch.append(calculate_energy(pattern_prev,W))
+        energy = calculate_energy(pattern_prev,W)
+        print("Energy: " + str(energy))
+        energy_per_epoch.append(energy)
         
         for idx_node_i in range(n_nodes):
             result_sum = 0
@@ -129,8 +131,8 @@ def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=F
                 result_sum += W[idx_node_i,idx_node_j] * pattern_prev[idx_node_j]
             pattern_new[idx_node_i] = our_sign(result_sum)    
             #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
-        #print("Patterns new:")
-        #print(patterns_new)
+        print("Pattern new:")
+        print(pattern_new)
         
         # patterns_new = our_sign(np.dot(W,patterns_prev.T).T)
         
