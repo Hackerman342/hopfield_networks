@@ -125,6 +125,10 @@ def our_sign(x):
     else:
         return -1
 
+def vec_sign(x):
+    x[x>=0] = 1
+    x[x<0] = -1
+    return x
 
 def stability_reached(patterns_prev, patterns_new):
     return np.all(patterns_prev == patterns_new)

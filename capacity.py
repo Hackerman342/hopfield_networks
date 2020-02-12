@@ -34,35 +34,12 @@ def plot_original_and_recall_imgs(patterns, patterns_recall):
 
 def noisy_pattern(pattern, noise_percent):
     N = pattern.size
-    # Pattern should be 1-D, but this is a safety measure
     flat = np.copy(pattern).reshape(-1,N)
     ind = np.random.choice(N, int(N*noise_percent/100), replace=False)
     flat[0][ind] *= -1
     return flat.reshape(pattern.shape)
     
 
-# Load data from pict
-pict = np.genfromtxt('pict.dat', delimiter=',').reshape(-1,1024)
-
-# Show images being used for training
-show_images = False
-if show_images:
-    for i in range(pict.shape[0]):
-        img = pict[i].reshape(int(math.sqrt(pict.shape[1])),-1)
-        plt.imshow(img,  cmap='gray')
-        plt.show()
-
-# Calculate Weight Matrix
-n_patterns = 3
-
-pict_for_learning=pict[:n_patterns]
-
-#W = hf.weight_calc(pict_for_learning, disp_W = False, zeros_diagonal=True)
-#pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=1)
-
-#stability_check = np.all(pict_recall==pict_for_learning)
-
-#print("Are the patterns stable? " + str(stability_check))
 
 
 ###################### 3.4 - Distortion Resistance ######################
@@ -121,46 +98,125 @@ pict_for_learning=pict[:n_patterns]
 
 ###################### 3.5 - Capacity ######################
 
+####### Using images #######
+pics_part = False
+random_part = True
+
+if pics_part == True:
+    # Load data from pict
+    pict = np.genfromtxt('pict.dat', delimiter=',').reshape(-1,1024)
+    
+    # Show images being used for training
+    show_images = False
+    if show_images:
+        for i in range(pict.shape[0]):
+            img = pict[i].reshape(int(math.sqrt(pict.shape[1])),-1)
+            plt.imshow(img,  cmap='gray')
+            plt.show()
+    
+    # Calculate Weight Matrix
+    n_patterns = 3
+    
+    pict_for_learning=pict[:n_patterns]
+    
+    W = hf.weight_calc(pict_for_learning, disp_W = False, zeros_diagonal=False)
+    pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=1)
+    #pict_recall2 = hf.vec_sign(np.dot(W,np.copy(pict_for_learning).T).T)
+    
+    plot_original_and_recall_imgs(pict_for_learning, pict_recall)
+    #plot_original_and_recall_imgs(pict_for_learning, pict_recall2)
+    
+    stability_check = np.all(pict_recall==pict_for_learning)
+    
+    print("Are the patterns stable? " + str(stability_check))
+
 
 
 
 
 ####### Random pattern part #######
-
-n_patterns = 300
-n_units =500
-#n_patterns = 3
-#n_units = 8
-
-rand_pat = np.random.randint(0, 2, (n_patterns,n_units))
-rand_pat[rand_pat == 0] = -1
-
-recall_count1 = np.zeros(n_patterns)
-recall_count2 = np.zeros(n_patterns)
-
-for i in range(n_patterns):
-    print(i) # Just to show speed / where you're at
+if random_part == True:
+    n_patterns = 300
+    n_units = 300
+    #n_patterns = 3
+    #n_units = 8
     
-    # Calculate weight matrix for all patterns up to & including i
-    W1 = hf.weight_calc(rand_pat[:i+1][:],zeros_diagonal=False)
-    W2 = hf.weight_calc(rand_pat[:i+1][:],zeros_diagonal=True)
+    bias = 0 # Skew towards -1 or 1
+    noise_percent = 1
     
-    # Attempt recall of all patterns up to & including i
-    recall1 = np.sign(np.dot(W1,np.copy(rand_pat[:i+1][:]).T).T)
-    recall2 = np.sign(np.dot(W2,np.copy(rand_pat[:i+1][:]).T).T)
+    rand_pat = hf.vec_sign(bias+np.random.randn(n_patterns,n_units))
+    print("Average value: ", np.average(rand_pat))
+    plt.imshow(rand_pat, cmap='gray')
+    plt.show()
     
-    #### I confirmed that dot product is identical (at least for 1 iteration)
-    #recall = hf.degraded_recall_epochs(np.copy(rand_pat[:i+1][:]), W, epochs=1)
+    #rand_pat = np.random.randint(0, 2, (n_patterns,n_units))
+    rand_pat[rand_pat == 0] = -1
+    
+    noisy_pat = noisy_pattern(np.copy(rand_pat), noise_percent)    
 
-    # Sum stability of all patterns up to & including i
-    recall_count1[i] = np.sum(np.all(np.equal(recall1, rand_pat[:i+1][:]), axis=1))
-    recall_count2[i] = np.sum(np.all(np.equal(recall2, rand_pat[:i+1][:]), axis=1))
+    recall_count1 = np.zeros(n_patterns)
+    recall_count2 = np.zeros(n_patterns)
+    noise_recall_count1 = np.zeros(n_patterns)
+    noise_recall_count2 = np.zeros(n_patterns)
+    
+    for i in range(n_patterns):
+        #print(i) # Just to show speed / where you're at
+        
+        ### Recall without noise
+        
+        # Calculate weight matrix for all patterns up to & including i
+        W1 = hf.weight_calc(np.copy(rand_pat[:i+1][:]),zeros_diagonal=False)
+        W2 = hf.weight_calc(np.copy(rand_pat[:i+1][:]),zeros_diagonal=True)
+        
+        # Attempt recall of all patterns up to & including i
+        recall1 = hf.vec_sign(np.dot(W1,np.copy(rand_pat[:i+1][:]).T).T)
+        recall2 = hf.vec_sign(np.dot(W2,np.copy(rand_pat[:i+1][:]).T).T)
+        
+        #### I confirmed that dot product is identical (at least for 1 iteration)
+        #recall1 = hf.degraded_recall_epochs(np.copy(rand_pat[:i+1][:]), W1, epochs=1)
+        #recall2 = hf.degraded_recall_epochs(np.copy(rand_pat[:i+1][:]), W2, epochs=1)
+    
+        # Sum stability of all patterns up to & including i
+        recall_count1[i] = np.sum(np.all(np.equal(recall1, rand_pat[:i+1][:]), axis=1))
+        recall_count2[i] = np.sum(np.all(np.equal(recall2, rand_pat[:i+1][:]), axis=1))
+        
+        
+        ### Recall with noise
+        
+        noise_recall1 = np.copy(noisy_pat[:i+1][:])
+        noise_recall2 = np.copy(noisy_pat[:i+1][:])
+        old1 = np.copy(noise_recall1)
+        old2 = np.copy(noise_recall2) 
+        
+        for j in range(1000):
+            noise_recall1 = hf.vec_sign(np.dot(W1,noise_recall1.T).T)
+            noise_recall2 = hf.vec_sign(np.dot(W2,noise_recall2.T).T)
+            
+            if np.array_equal(noise_recall2, old2) or np.array_equal(noise_recall1, old1):
+                print("converged: ", j)
+                break
+            
+            old1 = np.copy(noise_recall1)
+            old2 = np.copy(noise_recall2)
+            
 
-plt.xlabel("Number of stored patterns")
-plt.plot(np.arange(n_patterns), recall_count1, "c", label="Stable pattern count | Weighted Diagonal")
-plt.plot(np.arange(n_patterns), recall_count2, "--k", label="Stable pattern count | Zero Diagonal")
-plt.legend()
-plt.show()    
+            
+            
+        
+        noise_recall_count1[i] = np.sum(np.all(np.equal(noise_recall1, noisy_pat[:i+1][:]), axis=1))
+        noise_recall_count2[i] = np.sum(np.all(np.equal(noise_recall2, noisy_pat[:i+1][:]), axis=1))
+        
+    plt.xlabel("Number of stored patterns")
+    plt.plot(np.arange(n_patterns), recall_count1, "c", label="Stable pattern count | Weighted Diagonal")
+    plt.plot(np.arange(n_patterns), recall_count2, "--k", label="Stable pattern count | Zero Diagonal")
+    plt.legend()
+    plt.show()    
+    
+    plt.xlabel("Number of recoverable noisy patterns (%i percent noise)" %noise_percent)
+    plt.plot(np.arange(n_patterns), noise_recall_count1, "c", label="Stable pattern count | Weighted Diagonal")
+    plt.plot(np.arange(n_patterns), noise_recall_count2, "--k", label="Stable pattern count | Zero Diagonal")
+    plt.legend()
+    plt.show()  
 
 ## Now do same with a splash of noise
 
@@ -179,14 +235,23 @@ plt.show()
 
 
 
+###################### Old Stuff ######################
+
+####### Verifying noisy_pattern function  #######
+
+#diff = np.sum(np.all(np.equal(rand_pat, noisy_pat), axis=1))
+#diff = 100 - diff*100./n_patterns
+#print("Percent of changed patterns: ", diff)
+#
+#plt.imshow(rand_pat, cmap='gray')
+#plt.show()
+#plt.imshow(noisy_pat, cmap='gray')
+#plt.show()
+    
 
 
 
 
-
-
-
-#plot_original_and_recall_imgs(pict_for_learning, pict_recall)
 
 #### Recall degraded patterns ###
 #p10 = pict[9].reshape(1,-1)
