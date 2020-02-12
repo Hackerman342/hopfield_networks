@@ -13,6 +13,20 @@ import matplotlib.pyplot as plt
 #used_data = data[:npatterns]
 
 
+def plot_original_and_recall_imgs(patterns, patterns_recall):
+    for idx_pattern in range(len(patterns)):
+        txt_title_orig = "Image " + str(idx_pattern+1) + " input"
+        plt.title(txt_title_orig)
+        img = patterns[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+        
+        txt_title_recall = "Image " + str(idx_pattern+1) + " recall"
+        plt.title(txt_title_recall)
+        img = patterns_recall[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
+        plt.imshow(img, cmap='gray')
+        plt.show()
+ 
 
 def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
     # Check for 1-D pattern shape = (N,)
