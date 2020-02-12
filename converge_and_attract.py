@@ -93,7 +93,7 @@ if __name__ == "__main__":
     
     
     patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=5, show_energy_per_epoch=False)
-    
+
     
     np.all(patterns_distorted_recall == patterns, axis=1)
     
@@ -114,6 +114,7 @@ if __name__ == "__main__":
         plt.show()
     
     
+
     all_possible_patterns = get_all_possible_patterns()
     
     
@@ -133,6 +134,5 @@ if __name__ == "__main__":
     very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]).reshape(1,-1) # 6 of the units of x1 were swipped
     
     very_distorted_pattern_recall = hf.degraded_recall_epochs(very_distorted_pattern, W, epochs=100)
-
 
 
