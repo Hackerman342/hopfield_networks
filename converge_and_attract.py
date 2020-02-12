@@ -117,15 +117,12 @@ if __name__ == "__main__":
     all_possible_patterns = get_all_possible_patterns()
     
     
-    all_possible_patterns_recall = hf.degraded_recall_epochs(all_possible_patterns, W, epochs=100)
+    all_possible_patterns_recall = hf.degraded_recall_epochs_multiple_patterns(all_possible_patterns, W, epochs=100)
     
         
     attractors = np.unique(all_possible_patterns_recall, axis=0)
     print("Number of attractors (assuming convergence): ", attractors.shape[0])
-    
-    
-    all_possible_patterns_recall = hf.degraded_recall_epochs(all_possible_patterns, W, epochs=3)
-    
+        
         
     attractors = np.unique(all_possible_patterns_recall, axis=0)
     print("Number of attractors (assuming convergence): ", attractors.shape[0])
@@ -133,7 +130,7 @@ if __name__ == "__main__":
    
     
     ## Very distorted pattern 
-    very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]).reshape(1,-1) # 6 of the units of x1 were swipped
+    very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]) # 6 of the units of x1 were swipped
     
     very_distorted_pattern_recall = hf.degraded_recall_epochs(very_distorted_pattern, W, epochs=100)
 
