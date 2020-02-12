@@ -92,7 +92,7 @@ if __name__ == "__main__":
     
     
     
-    patterns_distorted_recall = hf.degraded_recall_epochs_multiple_patterns(patterns_distorted, W, epochs=5, show_energy_per_epoch=False)
+    patterns_distorted_recall = hf.degraded_recall_epochs_multiple_patterns(patterns_distorted, W, epochs=50, show_energy_per_epoch=False)
     
     
     np.all(patterns_distorted_recall == patterns, axis=1)
@@ -114,25 +114,25 @@ if __name__ == "__main__":
         plt.show()
     
     
-    all_possible_patterns = get_all_possible_patterns()
-    
-    
-    all_possible_patterns_recall = hf.degraded_recall_epochs_multiple_patterns(all_possible_patterns, W, epochs=100)
-    
-        
-    attractors = np.unique(all_possible_patterns_recall, axis=0)
-    print("Number of attractors (assuming convergence): ", attractors.shape[0])
-        
-        
-    attractors = np.unique(all_possible_patterns_recall, axis=0)
-    print("Number of attractors (assuming convergence): ", attractors.shape[0])
-    
-   
-    
-    ## Very distorted pattern 
-    very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]) # 6 of the units of x1 were swipped
-    
-    very_distorted_pattern_recall = hf.degraded_recall_epochs(very_distorted_pattern, W, epochs=100)
+#    all_possible_patterns = get_all_possible_patterns()
+#    
+#    
+#    all_possible_patterns_recall = hf.degraded_recall_epochs_multiple_patterns(all_possible_patterns, W, epochs=100)
+#    
+#        
+#    attractors = np.unique(all_possible_patterns_recall, axis=0)
+#    print("Number of attractors (assuming convergence): ", attractors.shape[0])
+#        
+#        
+#    attractors = np.unique(all_possible_patterns_recall, axis=0)
+#    print("Number of attractors (assuming convergence): ", attractors.shape[0])
+#    
+#   
+#    
+#    ## Very distorted pattern 
+#    very_distorted_pattern = np.array([1., -1., -1., 1., -1., 1., -1., -1.]) # 6 of the units of x1 were swipped
+#    
+#    very_distorted_pattern_recall = hf.degraded_recall_epochs(very_distorted_pattern, W, epochs=100)
 
 
 

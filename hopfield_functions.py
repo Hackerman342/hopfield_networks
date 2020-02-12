@@ -145,7 +145,8 @@ def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=F
             #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
         print("Pattern new:")
         print(pattern_new)
-        
+        plt.imshow(pattern_new.reshape(1,-1), cmap='gray')
+        plt.show()
         # patterns_new = our_sign(np.dot(W,patterns_prev.T).T)
         
         if stability_reached(pattern_prev, pattern_new):
