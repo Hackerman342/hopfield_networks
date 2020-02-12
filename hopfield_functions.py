@@ -109,7 +109,19 @@ def degraded_recall_epochs_multiple_patterns(patterns_prev, W, epochs=1000, show
     return patterns_new
     
     
+
+def asynchronous_update(pattern_prev):
+    n_nodes = len(pattern_prev)
+    idx_nodes = np.array(range(n_nodes))
+    np.random.shuffle(idx_nodes)
+    for idx_node_i in idx_nodes:
+        pass
     
+    
+    
+    
+    
+
     
 def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=False):
     """
