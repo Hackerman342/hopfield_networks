@@ -92,7 +92,7 @@ if __name__ == "__main__":
     
     
     
-    patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W,5)
+    patterns_distorted_recall = hf.degraded_recall_epochs_multiple_patterns(patterns_distorted, W)
     
     
     np.all(patterns_distorted_recall == patterns, axis=1)

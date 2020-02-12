@@ -50,35 +50,33 @@ disp_W = True
 
 pict_for_learning=pict[:n_patterns]
 
-W = hf.weight_calc(pict_for_learning, disp_W)
-pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=1)
+W = hf.weight_calc(pict_for_learning, disp_W, zeros_diagonal=True)
+pict_recall = hf.degraded_recall_epochs_multiple_patterns(pict_for_learning, W)
 
 stability_check = np.all(pict_for_learning==pict_for_learning)
 
 print("Are the patterns stable? " + str(stability_check))
 
 
-energy_attractors = hf.calculate_energy(pict_for_learning,W)
-
-
 
 plot_original_and_recall_imgs(pict_for_learning, pict_recall)
 
 ### Recall degraded patterns ###
-p10 = pict[9].reshape(1,-1)
-
-#hf.degraded_recall(image_vec, W, epochs, print_step)
 print(" \n\n ############### p10 recall ############### ")
-p10_recall = hf.degraded_recall_epochs(p10, W, 1)
+p10 = pict[9]
+p10_recall = hf.degraded_recall_epochs(p10, W, show_energy_per_epoch=True)
+
 plt.imshow(p10_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
 plt.show()
 
-p11 = pict[10].reshape(1,-1)
+
 print(" \n\n ############### p11 recall ############### ")
-p11_recall = hf.degraded_recall_epochs(p11, W, 4)
+p11 = pict[10]
+p11_recall = hf.degraded_recall_epochs(p11, W, show_energy_per_epoch=True)
 plt.imshow(p11_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
 plt.show()
     
+
 rand_vec = np.random.randint(2, size=1024).reshape(1,-1)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
@@ -90,7 +88,14 @@ plt.show()
 
 ###################### 3.3 ######################
 
+print("Energy at p0: " + str(hf.calculate_energy(pict_for_learning[0],W)))
+print("Energy at p1: ", hf.calculate_energy(pict_for_learning[1],W))
+print("Energy at p2: ", hf.calculate_energy(pict_for_learning[2],W))
 
 
+print("Energy at p10: " + str(hf.calculate_energy(p10, W)))
+print("Energy at p11: " + str(hf.calculate_energy(p11,W)))
 
+
+########## NORMALLY DISTRIBUTED WEIGHT MATRIX ##########
 
