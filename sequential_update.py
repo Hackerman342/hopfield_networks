@@ -71,7 +71,7 @@ plt.imshow(p11_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
 plt.show()
     
 
-rand_vec = np.random.randint(2, size=1024).reshape(1,-1)
+rand_vec = np.random.randint(2, size=1024)
 rand_vec[rand_vec == 0] = -1
 print(" \n\n ############### random image recall ############### ")
 rand_recall = hf.degraded_recall_epochs(rand_vec, W, 100)
