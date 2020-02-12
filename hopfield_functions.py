@@ -97,33 +97,62 @@ def check_fixed_point_found(patterns_new, patterns_prev):
     return fixed_point_found
 
 
-def degraded_recall_epochs_multiple_patterns(patterns_prev, W, epochs=1000, show_energy_per_epoch=False):
+def degraded_recall_epochs(patterns_prev, W, async_or_seq="seq",epochs=1000, show_energy_per_epoch=False):
     n_patterns = patterns_prev.shape[0]
     n_nodes = patterns_prev.shape[1]
     patterns_new = np.zeros((n_patterns, n_nodes))
     for idx_pattern in range(n_patterns):   
         print("Index pattern: " + str(idx_pattern))
         this_pattern_prev = patterns_prev[idx_pattern]
-        this_pattern_new = degraded_recall_epochs(this_pattern_prev, W, epochs, show_energy_per_epoch)
+        if async_or_seq == "seq":
+            this_pattern_new = synchronous_update(this_pattern_prev, W, epochs, show_energy_per_epoch)
+        elif async_or_seq == "async":
+            this_pattern_new = asynchronous_update(this_pattern_prev, W, epochs)
         patterns_new[idx_pattern] = this_pattern_new
     return patterns_new
     
     
 
-def asynchronous_update(pattern_prev):
+def asynchronous_update(pattern_prev, W, epochs=1000):
     n_nodes = len(pattern_prev)
-    idx_nodes = np.array(range(n_nodes))
-    np.random.shuffle(idx_nodes)
-    for idx_node_i in idx_nodes:
-        pass
     
+    for epoch in range(epochs):
+        print(epoch)
+        pattern_new = np.zeros(n_nodes)
+        idx_nodes = np.array(range(n_nodes))
+        np.random.shuffle(idx_nodes)
+        
+        for idx_node_i in idx_nodes:
+            result_sum = 0
+            for idx_node_j in range(n_nodes):
+                if pattern_new[idx_node_j] != 0:
+                    # idx_node_j already updated. Therefore we take s_j
+                    s_j = pattern_new[idx_node_j] 
+                else:
+                    s_j = pattern_prev[idx_node_j]   
+                result_sum += W[idx_node_i,idx_node_j] * s_j
+            pattern_new[idx_node_i] = our_sign(result_sum)       
+        
+        if stability_reached(pattern_prev, pattern_new):
+                print("Stability reached in " + str(epoch+1) + " epochs.")
+                break
+            
+        pattern_prev = pattern_new.copy()   
+        
+        if epoch%100==0:
+            plt.title("Iteration #%i" %(epoch+1))
+            img = pattern_new.reshape(int(math.sqrt(pattern_new.size)),-1)
+            plt.imshow(img, cmap='gray')
+            plt.show()  
+        
+    return pattern_new   
     
     
     
     
 
     
-def degraded_recall_epochs(pattern_prev, W, epochs=1000, show_energy_per_epoch=False):
+def synchronous_update(pattern_prev, W, epochs=1000, show_energy_per_epoch=False):
     """
     pattern_prev: it's an array with one n_nodes values
     """
