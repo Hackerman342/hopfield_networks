@@ -13,20 +13,7 @@ import matplotlib.pyplot as plt
 #used_data = data[:npatterns]
 
 
-def plot_original_and_recall_imgs(patterns, patterns_recall):
-    for idx_pattern in range(len(patterns)):
-        txt_title_orig = "Image " + str(idx_pattern+1) + " input"
-        plt.title(txt_title_orig)
-        img = patterns[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
-        plt.imshow(img, cmap='gray')
-        plt.show()
-        
-        txt_title_recall = "Image " + str(idx_pattern+1) + " recall"
-        plt.title(txt_title_recall)
-        img = patterns_recall[idx_pattern].reshape(int(math.sqrt(patterns.shape[1])),-1)
-        plt.imshow(img, cmap='gray')
-        plt.show()
- 
+
 
 def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
     # Check for 1-D pattern shape = (N,)
@@ -97,35 +84,37 @@ def check_fixed_point_found(patterns_new, patterns_prev):
     return fixed_point_found
 
 
-def degraded_recall_epochs(patterns_prev, W, async_or_seq="seq",epochs=1000, show_energy_per_epoch=False):
+def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, show_energy_per_epoch=False):
     n_patterns = patterns_prev.shape[0]
     n_nodes = patterns_prev.shape[1]
     patterns_new = np.zeros((n_patterns, n_nodes))
     for idx_pattern in range(n_patterns):   
         print("Index pattern: " + str(idx_pattern))
         this_pattern_prev = patterns_prev[idx_pattern]
-        if async_or_seq == "seq":
+        if type_of_update == "seq":
             this_pattern_new = synchronous_update(this_pattern_prev, W, epochs, show_energy_per_epoch)
-        elif async_or_seq == "async":
+        elif type_of_update == "async":
+            print("In async")
             this_pattern_new = asynchronous_update(this_pattern_prev, W, epochs)
         patterns_new[idx_pattern] = this_pattern_new
     return patterns_new
     
     
 
-def asynchronous_update(pattern_prev, W, epochs=1000):
+def asynchronous_update(pattern_prev, W, epochs):
     n_nodes = len(pattern_prev)
     
     for epoch in range(epochs):
         print(epoch)
-        pattern_new = np.zeros(n_nodes)
         idx_nodes = np.array(range(n_nodes))
         np.random.shuffle(idx_nodes)
-        
+        pattern_new = np.zeros(n_nodes)
+
         for idx_node_i in idx_nodes:
             result_sum = 0
             for idx_node_j in range(n_nodes):
                 if pattern_new[idx_node_j] != 0:
+                    #print("Already learned s_j")
                     # idx_node_j already updated. Therefore we take s_j
                     s_j = pattern_new[idx_node_j] 
                 else:
@@ -134,8 +123,8 @@ def asynchronous_update(pattern_prev, W, epochs=1000):
             pattern_new[idx_node_i] = our_sign(result_sum)       
         
         if stability_reached(pattern_prev, pattern_new):
-                print("Stability reached in " + str(epoch+1) + " epochs.")
-                break
+            print("Stability reached in " + str(epoch+1) + " epochs.")
+            break
             
         pattern_prev = pattern_new.copy()   
         
@@ -152,7 +141,7 @@ def asynchronous_update(pattern_prev, W, epochs=1000):
     
 
     
-def synchronous_update(pattern_prev, W, epochs=1000, show_energy_per_epoch=False):
+def synchronous_update(pattern_prev, W, epochs, show_energy_per_epoch=False):
     """
     pattern_prev: it's an array with one n_nodes values
     """
@@ -172,10 +161,9 @@ def synchronous_update(pattern_prev, W, epochs=1000, show_energy_per_epoch=False
                 result_sum += W[idx_node_i,idx_node_j] * pattern_prev[idx_node_j]
             pattern_new[idx_node_i] = our_sign(result_sum)    
             #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
-        print("Pattern new:")
-        print(pattern_new)
-        plt.imshow(pattern_new.reshape(1,-1), cmap='gray')
-        plt.show()
+        #print("Pattern new:")
+        #print(pattern_new)
+
         # patterns_new = our_sign(np.dot(W,patterns_prev.T).T)
         
         if stability_reached(pattern_prev, pattern_new):
