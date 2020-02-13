@@ -85,6 +85,7 @@ def check_fixed_point_found(patterns_new, patterns_prev):
     return fixed_point_found
 
 
+
 def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, show_energy_per_epoch=False):
     n_patterns = patterns_prev.shape[0]
     n_nodes = patterns_prev.shape[1]
@@ -109,46 +110,47 @@ def random_update(pattern_prev, W):
     stability_found=False
     epoch = 0 
     n_iters_stable = 0
-    while ~stability_found:
-        pattern_new = np.zeros(n_nodes)
-        
-        epoch += 1
-        print(epoch)
-        random_idx_i = random.randint(0,n_nodes)
+    pattern_new = pattern_prev.copy()
+
+    while stability_found==False:
+        random_idx_i = random.randint(0,n_nodes-1)
         
         result_sum = 0
         for idx_node_j in range(n_nodes):
             result_sum += W[random_idx_i,idx_node_j] * pattern_prev[idx_node_j]
         pattern_new[random_idx_i] = our_sign(result_sum)    
 
-        
         if epoch%100==0:
             title_txt = "Iteration #%i" %(epoch+1)
-            img.display_img(pattern_new, title_txt)
+            img.display_img(pattern_new.reshape(1,-1), title_txt)
         
         # check for stability in random_update (we will do that it has converge if 5 times in a row it has the same value)
         stability_found, n_iters_stable = check_stability_random_update(pattern_prev, pattern_new, n_iters_stable)
         
-        if stability_reached(pattern_prev, pattern_new):
-            print("Stability reached in " + str(epoch+1) + " epochs.")
-            break
-            
         pattern_prev = pattern_new.copy()   
+        
+        epoch += 1
+        
+    print("Stability reached in " + str(epoch) + " epochs.")  
     
     return pattern_new   
       
         
     
-def check_stability_random_update(pattern_prev, pattern_new, n_iters_stable, threshold_iters_stable = 5):
+def check_stability_random_update(pattern_prev, pattern_new, n_iters_stable, threshold_iters_stable = 700):
+    
     stability_found = False
     stability_this_iter = stability_reached(pattern_prev, pattern_new)
     if stability_this_iter:
-        n_iters_stable += 1
+        print("Stable")
+        n_iters_stable_updated = n_iters_stable + 1
     else: 
-        n_iters_stable = 0 
-    if n_iters_stable == threshold_iters_stable:
+        print("No more stable")
+        n_iters_stable_updated = 0 
+    if n_iters_stable_updated == threshold_iters_stable:
+        print("FOUND")
         stability_found = True
-    return stability_found, n_iters_stable
+    return stability_found, n_iters_stable_updated
 
 
 

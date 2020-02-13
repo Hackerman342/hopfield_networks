@@ -57,22 +57,16 @@ img_functions.display_img(p11, "Image p11 input")
 p11_recall = hf.degraded_recall_epochs(p11, W, show_energy_per_epoch=True)
 img_functions.display_img(p11_recall, "Image p11 recall")
 
-"""
-# Random image
-rand_vec = np.random.randint(2, size=1024).reshape(1,-1)
-rand_vec[rand_vec == 0] = -1
-print(" \n\n ############### random image recall ############### ")
-rand_recall = hf.degraded_recall_epochs(rand_vec, W, epochs=100)
-plt.imshow(rand_recall.reshape(int(math.sqrt(pict.shape[1])),-1),  cmap='gray')
-plt.show()
-"""
-
-######## ASYNCHRONOUS RECALL FOR DEGRADED PATTERNS 
-
-p10_recall_async = hf.degraded_recall_epochs(p10, W, type_of_update="async", show_energy_per_epoch=True)
+p11_recall_async = hf.degraded_recall_epochs(p11, W, type_of_update="async")
+img_functions.display_img(p11_recall_async, "Image p11 recall with asynchronous update")
 
 
-p11_recall_async = hf.degraded_recall_epochs(p11, W, type_of_update="async", show_energy_per_epoch=True)
+######## RANDOM RECALL FOR DEGRADED PATTERNS 
+
+p10_recall_random = hf.degraded_recall_epochs(p10, W, type_of_update="random", show_energy_per_epoch=False)
+
+
+p11_recall_random = hf.degraded_recall_epochs(p11, W, type_of_update="random", show_energy_per_epoch=False)
 
 
 
@@ -85,6 +79,9 @@ print("Energy at p2: ", hf.calculate_energy(pict_for_learning[2],W))
 
 print("Energy at p10: " + str(hf.calculate_energy(p10, W)))
 print("Energy at p11: " + str(hf.calculate_energy(p11,W)))
+
+
+
 
 
 ########## NORMALLY DISTRIBUTED WEIGHT MATRIX ##########
