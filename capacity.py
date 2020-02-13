@@ -35,7 +35,7 @@ def plot_original_and_recall_imgs(patterns, patterns_recall):
 def noisy_pattern(pattern, noise_percent):
     N = pattern.size
     flat = np.copy(pattern).reshape(-1,N)
-    ind = np.random.choice(N, int(N*noise_percent/100), replace=False)
+    ind = np.random.choice(N, int(N*noise_percent/100), replace=True)
     flat[0][ind] *= -1
     return flat.reshape(pattern.shape)
     
@@ -99,8 +99,8 @@ def noisy_pattern(pattern, noise_percent):
 ###################### 3.5 - Capacity ######################
 
 ####### Using images #######
-pics_part = False
-random_part = True
+pics_part = True
+random_part = False
 
 if pics_part == True:
     # Load data from pict
@@ -115,12 +115,13 @@ if pics_part == True:
             plt.show()
     
     # Calculate Weight Matrix
-    n_patterns = 3
+    n_patterns = 4
     
     pict_for_learning=pict[:n_patterns]
     
     W = hf.weight_calc(pict_for_learning, disp_W = False, zeros_diagonal=False)
-    pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, epochs=1)
+    pict_recall = hf.degraded_recall_epochs(pict_for_learning, W)
+    #pict_recall = hf.degraded_recall_epochs(pict_for_learning, W, type_of_update="random")
     #pict_recall2 = hf.vec_sign(np.dot(W,np.copy(pict_for_learning).T).T)
     
     plot_original_and_recall_imgs(pict_for_learning, pict_recall)
@@ -137,12 +138,12 @@ if pics_part == True:
 ####### Random pattern part #######
 if random_part == True:
     n_patterns = 300
-    n_units = 300
+    n_units = 500
     #n_patterns = 3
     #n_units = 8
     
-    bias = 0 # Skew towards -1 or 1
-    noise_percent = 1
+    bias = 0.3 # Skew towards -1 or 1
+    noise_percent = .3
     
     rand_pat = hf.vec_sign(bias+np.random.randn(n_patterns,n_units))
     print("Average value: ", np.average(rand_pat))
@@ -160,7 +161,7 @@ if random_part == True:
     noise_recall_count2 = np.zeros(n_patterns)
     
     for i in range(n_patterns):
-        #print(i) # Just to show speed / where you're at
+        print("Current pattern count: ",(i+1)) # Just to show speed / where you're at
         
         ### Recall without noise
         
@@ -202,17 +203,19 @@ if random_part == True:
 
             
             
+        #noise_recall1 =  hf.degraded_recall_epochs(np.copy(noisy_pat[:i+1][:]), W1, type_of_update="async") 
+        #noise_recall2 = hf.degraded_recall_epochs(np.copy(noisy_pat[:i+1][:]), W2, type_of_update="async") 
         
         noise_recall_count1[i] = np.sum(np.all(np.equal(noise_recall1, noisy_pat[:i+1][:]), axis=1))
         noise_recall_count2[i] = np.sum(np.all(np.equal(noise_recall2, noisy_pat[:i+1][:]), axis=1))
         
-    plt.xlabel("Number of stored patterns")
+    plt.xlabel("Number of stored patterns (%.1f bias)" %bias)
     plt.plot(np.arange(n_patterns), recall_count1, "c", label="Stable pattern count | Weighted Diagonal")
     plt.plot(np.arange(n_patterns), recall_count2, "--k", label="Stable pattern count | Zero Diagonal")
     plt.legend()
     plt.show()    
     
-    plt.xlabel("Number of recoverable noisy patterns (%i percent noise)" %noise_percent)
+    plt.xlabel("Number of recoverable noisy patterns (%.2f percent noise)" %noise_percent)
     plt.plot(np.arange(n_patterns), noise_recall_count1, "c", label="Stable pattern count | Weighted Diagonal")
     plt.plot(np.arange(n_patterns), noise_recall_count2, "--k", label="Stable pattern count | Zero Diagonal")
     plt.legend()
