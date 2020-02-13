@@ -94,8 +94,14 @@ if __name__ == "__main__":
     
     patterns_distorted_recall = hf.degraded_recall_epochs(patterns_distorted, W, epochs=5, show_energy_per_epoch=False)
 
+
+    patterns_distorted_recall_async = hf.degraded_recall_epochs(patterns_distorted, W, type_of_update="async")
+    
     
     np.all(patterns_distorted_recall == patterns, axis=1)
+    
+    np.all(patterns_distorted_recall_async == patterns, axis=1)
+
     
     patterns_distorted_converg = np.all(patterns_distorted_recall == patterns, axis=1)
     

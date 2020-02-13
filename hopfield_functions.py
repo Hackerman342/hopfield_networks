@@ -8,9 +8,9 @@ Created on Sun Feb  9 12:25:28 2020
 import math
 import numpy as np 
 import matplotlib.pyplot as plt
+import img_functions as img
+import random 
 
-
-#used_data = data[:npatterns]
 
 
 
@@ -78,6 +78,7 @@ def degraded_recall_first_to_converge(image_vec_prev, W, print_step=10, plot_pat
     return image_vec_new 
 """
 
+
 def check_fixed_point_found(patterns_new, patterns_prev): 
     fixed_points_in_patterns = np.all(patterns_new == patterns_prev, axis = 1)
     fixed_point_found = np.any(fixed_points_in_patterns)
@@ -96,10 +97,60 @@ def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, s
         elif type_of_update == "async":
             print("In async")
             this_pattern_new = asynchronous_update(this_pattern_prev, W, epochs)
+        elif type_of_update == "random":
+            this_pattern_new = random_update(this_pattern_prev, W)
         patterns_new[idx_pattern] = this_pattern_new
     return patterns_new
     
     
+
+def random_update(pattern_prev, W):
+    n_nodes = len(pattern_prev)
+    stability_found=False
+    epoch = 0 
+    n_iters_stable = 0
+    while ~stability_found:
+        pattern_new = np.zeros(n_nodes)
+        
+        epoch += 1
+        print(epoch)
+        random_idx_i = random.randint(0,n_nodes)
+        
+        result_sum = 0
+        for idx_node_j in range(n_nodes):
+            result_sum += W[random_idx_i,idx_node_j] * pattern_prev[idx_node_j]
+        pattern_new[random_idx_i] = our_sign(result_sum)    
+
+        
+        if epoch%100==0:
+            title_txt = "Iteration #%i" %(epoch+1)
+            img.display_img(pattern_new, title_txt)
+        
+        # check for stability in random_update (we will do that it has converge if 5 times in a row it has the same value)
+        stability_found, n_iters_stable = check_stability_random_update(pattern_prev, pattern_new, n_iters_stable)
+        
+        if stability_reached(pattern_prev, pattern_new):
+            print("Stability reached in " + str(epoch+1) + " epochs.")
+            break
+            
+        pattern_prev = pattern_new.copy()   
+    
+    return pattern_new   
+      
+        
+    
+def check_stability_random_update(pattern_prev, pattern_new, n_iters_stable, threshold_iters_stable = 5):
+    stability_found = False
+    stability_this_iter = stability_reached(pattern_prev, pattern_new)
+    if stability_this_iter:
+        n_iters_stable += 1
+    else: 
+        n_iters_stable = 0 
+    if n_iters_stable == threshold_iters_stable:
+        stability_found = True
+    return stability_found, n_iters_stable
+
+
 
 def asynchronous_update(pattern_prev, W, epochs):
     n_nodes = len(pattern_prev)
@@ -128,11 +179,7 @@ def asynchronous_update(pattern_prev, W, epochs):
             
         pattern_prev = pattern_new.copy()   
         
-        if epoch%100==0:
-            plt.title("Iteration #%i" %(epoch+1))
-            img = pattern_new.reshape(int(math.sqrt(pattern_new.size)),-1)
-            plt.imshow(img, cmap='gray')
-            plt.show()  
+        
         
     return pattern_new   
     
