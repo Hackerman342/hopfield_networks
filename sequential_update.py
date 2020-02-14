@@ -88,6 +88,15 @@ print("Energy at p11: " + str(hf.calculate_energy(p11,W)))
 n_nodes = pict.shape[1]
 W_norm_dist = np.random.normal(size=(n_nodes,n_nodes))
 
+random_picture = img_functions.generate_random_image()
+img_functions.display_img(random_picture, "")
+
+p1_recall_ =  hf.degraded_recall_epochs(random_picture, W_norm_dist, type_of_update="async", show_energy_per_epoch=True)
+
+
 
 ########## NORMALLY SYMMETRIC DISTRIBUTED WEIGHT MATRIX ##########
 W_symmetric = 0.5 * (W_norm_dist + W_norm_dist.T)
+p1_recall__ =  hf.degraded_recall_epochs(random_picture, W_symmetric, type_of_update="async", show_energy_per_epoch=True)
+img_functions.display_img(p1_recall__, "Image p1 recall with random symmetric W")
+
