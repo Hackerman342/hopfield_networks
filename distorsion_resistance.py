@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
 """
 Created on Sun Feb  9 10:31:13 2020
 
@@ -16,6 +16,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import hopfield_functions as hf
 import random
+import img_functions as imgf
+import time
 
 def distor_pattern(pattern, percentage):
     num_changed_cells = int(percentage/100 * pattern.shape[0])
@@ -26,7 +28,7 @@ def distor_pattern(pattern, percentage):
             new_pattern[idx] = -1
         else:
             new_pattern[idx] = 1
-    return new_pattern
+    return new_pattern.reshape(1, -1)
 
 
 # Load data from pict
@@ -46,17 +48,28 @@ disp_W = True
 
 
 pict_for_learning=pict[:n_patterns]
+selected_pict = pict_for_learning[0]
+percentages = np.arange(0, 101, 10)
+accuracy = []
+W = hf.weight_calc(pict_for_learning, disp_W, zeros_diagonal=True)
 
-for percentage in range(101):
-    W = hf.weight_calc(pict_for_learning, disp_W, zeros_diagonal=True)
-    
-    pict_recall = hf.degraded_recall_epochs_multiple_patterns(pict_for_learning, W)
-    distorted_pattern = distor_pattern(pict_for_learning[0], percentage)
-    stability_check = np.all(pict_for_learning[0] == distorted_pattern)
-    
-    print("Percentage " + str(percentage) + "; Stability" + str(stability_check))
+for percentage in percentages:
+    distorted_pattern = distor_pattern(selected_pict, percentage)
+    restored_pics = 0
+    for i in range(100):
+        pict_recall = hf.degraded_recall_epochs(distorted_pattern, W, epochs = 1000).reshape(1, -1)
+        stability_check = np.all(selected_pict == pict_recall)
+        print("Percentage " + str(percentage) + "; Stability" + str(stability_check))
+        #imgf.plot_original_and_recall_imgs(distorted_pattern, pict_recall)
+        if stability_check:
+            restored_pics += 1
+    accuracy.append(restored_pics/100)
 
-
+plt.figure()
+plt.plot(percentages, accuracy)
+plt.xlabel("Percentage noise")
+plt.ylabel("Accuracy")
+plt.title("Noise accuracy over 100 iterations")
 
 
 
