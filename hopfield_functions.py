@@ -15,14 +15,18 @@ import random
 
 
 
-def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
+def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True, imbalanced=False, average_activity=0.1):
     # Check for 1-D pattern shape = (N,)
     if patterns.size == patterns.shape[0]:
         n_units = patterns.size
     else:
         n_units = patterns.shape[1]
-    # This is the same that summing all the outer products of each pattern with itself
-    W = np.dot(patterns.T,patterns)
+        
+    if imbalanced:
+        W = np.dot((patterns - average_activity).T, (patterns - average_activity))
+    else:
+        # This is the same that summing all the outer products of each pattern with itself
+        W = np.dot(patterns.T, patterns)
 
     if do_scaling:
         W = W / n_units # Changed because /= was rasing an error for some reason...
@@ -36,6 +40,12 @@ def weight_calc(patterns, do_scaling=True, disp_W=False, zeros_diagonal=True):
         plt.imshow(W,  cmap='jet') 
         plt.colorbar()
         plt.show()
+    return W
+
+
+def weight_calc_sparse(patterns, activity):
+    W = np.dot(patterns.T-activity, patterns - activity)
+    W -= np.diag(np.diag(W)) 
     return W
 
 
@@ -86,7 +96,7 @@ def check_fixed_point_found(patterns_new, patterns_prev):
 
 
 
-def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, show_energy_per_epoch=False):
+def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, show_energy_per_epoch=False, use_bias=False, bias=0.1):
     n_patterns = patterns_prev.shape[0]
     n_nodes = patterns_prev.shape[1]
     patterns_new = np.zeros((n_patterns, n_nodes))
@@ -94,7 +104,12 @@ def degraded_recall_epochs(patterns_prev, W, type_of_update="seq",epochs=1000, s
         print("Index pattern: " + str(idx_pattern))
         this_pattern_prev = patterns_prev[idx_pattern]
         if type_of_update == "seq":
-            this_pattern_new = synchronous_update(this_pattern_prev, W, epochs, show_energy_per_epoch)
+            if use_bias:
+                this_pattern_new = synchronous_update(this_pattern_prev, W, epochs, show_energy_per_epoch, use_bias=True, bias=bias)
+                np.where(this_pattern_new==-1, 0, this_pattern_new) 
+            else:
+                this_pattern_new = synchronous_update(this_pattern_prev, W, epochs, show_energy_per_epoch)
+                #np.where(this_pattern_new==-1, 0, this_pattern_new) 
         elif type_of_update == "async":
             print("In async")
             this_pattern_new = asynchronous_update(this_pattern_prev, W, epochs)
@@ -190,7 +205,7 @@ def asynchronous_update(pattern_prev, W, epochs):
     
 
     
-def synchronous_update(pattern_prev, W, epochs, show_energy_per_epoch=False):
+def synchronous_update(pattern_prev, W, epochs, show_energy_per_epoch=False, use_bias=False, bias=0.1):
     """
     pattern_prev: it's an array with one n_nodes values
     """
@@ -208,7 +223,10 @@ def synchronous_update(pattern_prev, W, epochs, show_energy_per_epoch=False):
             result_sum = 0
             for idx_node_j in range(n_nodes):
                 result_sum += W[idx_node_i,idx_node_j] * pattern_prev[idx_node_j]
-            pattern_new[idx_node_i] = our_sign(result_sum)    
+            if use_bias:
+                pattern_new[idx_node_i] = 0.5 + 0.5 * our_sign(result_sum - bias)
+            else:
+                pattern_new[idx_node_i] = our_sign(result_sum)    
             #patterns_new[idx_pattern, idx_node] = our_sign(patterns_prev[idx_pattern, :] @ W[idx_node])
         #print("Pattern new:")
         #print(pattern_new)
@@ -242,6 +260,10 @@ def vec_sign(x):
     x[x>=0] = 1
     x[x<0] = -1
     return x
+
+def vec_sign_bias(x, bias):
+    y = 0.5 + 0.5 * vec_sign(x - bias)
+    return y
 
 def stability_reached(pattern_prev, pattern_new):
     return np.all(pattern_prev == pattern_new)
