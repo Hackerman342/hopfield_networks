@@ -8,6 +8,7 @@ Created on Thu Feb 13 11:09:21 2020
 
 import matplotlib.pyplot as plt
 import math 
+import numpy as np 
 
 def plot_original_and_recall_imgs(patterns, patterns_recall):
     for idx_pattern in range(len(patterns)):
@@ -25,3 +26,9 @@ def display_img(img, title_img):
     plt.title(title_img)
     plt.imshow(img.reshape(int(math.sqrt(img.shape[1])),-1),  cmap='gray')
     plt.show()
+    
+    
+def generate_random_image(pixels_img=1024):
+    rand_img = np.random.randint(2, size=pixels_img).reshape(1,-1)
+    rand_img[rand_img == 0] = -1
+    return rand_img
