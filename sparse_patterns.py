@@ -31,7 +31,7 @@ def distor_pattern(pattern, percentage):
 
 
 n_imgs = 700
-activity = 0.1
+activity = 0.5
 dimensions = 500
 
 sparse_imgs = np.zeros((n_imgs, dimensions))
@@ -39,7 +39,7 @@ sparse_imgs = np.zeros((n_imgs, dimensions))
 for idx_img in range(n_imgs):
     sparse_imgs[idx_img] = generate_sparse_pattern(activity=activity, dimensions=dimensions)
 
-bias_values = np.arange(15, 25, 0.01)
+bias_values = np.arange(0, 25, 0.01)
 capacity_per_bias = []
 for bias in bias_values:
     print("Bias " + str(bias))
